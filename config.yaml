@@ -1,0 +1,5 @@
+topic_base: "qsource3"
+device_name: "Qsource3"
+mqtt_broker: "localhost"
+mqtt_port: 1883
+mqtt_connection_timeout: 60
