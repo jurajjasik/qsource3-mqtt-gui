@@ -2,7 +2,6 @@ import json
 import logging
 
 import paho.mqtt.client as mqtt
-from paho.mqtt.client import CallbackAPIVersion
 from PyQt5.QtCore import QObject, pyqtSignal
 
 from .utils import (
@@ -77,7 +76,6 @@ class QSource3_MQTTClientLogic(QObject):
         self.device_name = self.config["device_name"]
 
         self.client = mqtt.Client(
-            callback_api_version=CallbackAPIVersion.VERSION2,
             clean_session=True,
         )
 
@@ -124,7 +122,7 @@ class QSource3_MQTTClientLogic(QObject):
         with open(json_file_name, "w") as f:
             json.dump(self.settings, f)
 
-    def on_connect(self, client, userdata, flags, rc, properties):
+    def on_connect(self, client, userdata, flags, rc):
         logger.debug(f"Connected with result code {rc}")
 
         self.client.subscribe(f"{self.topic_base}/response/{self.device_name}/#")
