@@ -1,5 +1,6 @@
 import json
 import logging
+import socket
 
 import paho.mqtt.client as mqtt
 from PyQt5.QtCore import QObject, pyqtSignal
@@ -88,7 +89,9 @@ class QSource3_MQTTClientLogic(QObject):
             self.config["mqtt_port"],
             self.config["mqtt_connection_timeout"],
         )
+        self.client.socket().setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 2048)
         self.client.loop_start()
+        logger.debug("MQTT client started")
 
     def load_settings(self, json_file_name):
         with open(json_file_name, "r") as f:
@@ -124,17 +127,30 @@ class QSource3_MQTTClientLogic(QObject):
 
     def on_connect(self, client, userdata, flags, rc):
         logger.debug(f"Connected with result code {rc}")
+        
+        self.client.subscribe("qsource3/#")
 
-        self.client.subscribe(f"{self.topic_base}/response/{self.device_name}/#")
-        self.client.subscribe(f"{self.topic_base}/connected/{self.device_name}")
-        self.client.subscribe(f"{self.topic_base}/error/{self.device_name}")
+        # self.client.subscribe(f"{self.topic_base}/response/{self.device_name}/#")
+        # logger.debug(f"Subscribed to {self.topic_base}/response/{self.device_name}/#")
+        
+        # self.client.subscribe(f"{self.topic_base}/connected/{self.device_name}")
+        # logger.debug(f"Subscribed to {self.topic_base}/connected/{self.device_name}/#")
+        
+        # self.client.subscribe(f"{self.topic_base}/error/{self.device_name}/#")
+        # logger.debug(f"Subscribed to {self.topic_base}/error/{self.device_name}/#")
+        
+        # self.client.subscribe(f"{self.topic_base}/status/{self.device_name}/state")
+        # logger.debug(f"Subscribed to {self.topic_base}/status/{self.device_name}/state")
 
         self.signal_mqtt_status_changed.emit(
             f"connected to broker {self.config['mqtt_broker']}:{self.config['mqtt_port']}"
         )
 
     def on_message(self, client, userdata, message):
+        # logger.debug(f"Received message {message}")
         topic = message.topic
+        # logger.debug(f"Received message on topic {topic}")
+        
         try:
             payload = json.loads(message.payload.decode())
         except json.JSONDecodeError as e:
@@ -147,7 +163,7 @@ class QSource3_MQTTClientLogic(QObject):
             self.handle_device_connected(message)
         elif "/error/" in topic:
             self.handle_device_error(message)
-        elif "/state/" in topic:
+        elif topic.endswith("state"):
             self.handle_device_state(payload)
         elif topic.endswith("range"):
             self.handle_range(payload)
@@ -182,28 +198,38 @@ class QSource3_MQTTClientLogic(QObject):
                 check_mass_range(payload["range"])
                 self.settings["mass_range"] = payload["range"]
                 self.signal_mass_range_changed.emit(payload["range"])
+                logger.debug(f"Mass range: {payload['range']}")
             except ValueError as e:
                 logger.debug(e)
         if "frequency" in payload:
             self.signal_freq_changed.emit(payload["frequency"])
+            logger.debug(f"Frequency: {payload['frequency']}")
         if "rf_amp" in payload:
             self.signal_rf_amp_changed.emit(payload["rf_amp"])
+            logger.debug(f"RF amplitude: {payload['rf_amp']}")
         if "dc1" in payload:
             self.signal_dc1_changed.emit(payload["dc1"])
+            logger.debug(f"DC1: {payload['dc1']}")
         if "dc2" in payload:
             self.signal_dc2_changed.emit(payload["dc2"])
+            logger.debug(f"DC2: {payload['dc2']}")
         if "current" in payload:
             self.signal_current_changed.emit(payload["current"])
+            logger.debug(f"Current: {payload['current']}")
         if "mz" in payload:
             self.signal_mz_changed.emit(payload["mz"])
+            logger.debug(f"m/z: {payload['mz']}")
         if "is_dc_on" in payload:
             self.signal_dc_on_changed.emit(payload["is_dc_on"])
+            logger.debug(f"DC power on: {payload['is_dc_on']}")
         if "is_rod_polarity_positive" in payload:
             self.signal_rod_polarity_positive_changed.emit(
                 payload["is_rod_polarity_positive"]
             )
+            logger.debug(f"Rod polarity positive: {payload['is_rod_polarity_positive']}")
         if "max_mz" in payload:
             self.signal_max_mz_changed.emit(payload["max_mz"])
+            logger.debug(f"Max m/z: {payload['max_mz']}")
 
     @log_func
     def handle_range(self, payload):
