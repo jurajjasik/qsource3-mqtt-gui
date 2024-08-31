@@ -6,35 +6,14 @@ import time
 from engineering_notation import EngNumber
 from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import (
-    QAbstractItemView,
-    QButtonGroup,
-    QCheckBox,
-    QComboBox,
-    QDoubleSpinBox,
-    QFileDialog,
-    QFormLayout,
-    QFrame,
-    QGridLayout,
-    QGroupBox,
-    QHBoxLayout,
-    QHeaderView,
-    QLabel,
-    QLCDNumber,
-    QLineEdit,
-    QMainWindow,
-    QMessageBox,
-    QProgressBar,
-    QPushButton,
-    QRadioButton,
-    QSlider,
-    QSpinBox,
-    QStatusBar,
-    QTableWidget,
-    QTableWidgetItem,
-    QVBoxLayout,
-    QWidget,
-)
+from PyQt5.QtWidgets import (QAbstractItemView, QButtonGroup, QCheckBox,
+                             QComboBox, QDoubleSpinBox, QFileDialog,
+                             QFormLayout, QFrame, QGridLayout, QGroupBox,
+                             QHBoxLayout, QHeaderView, QLabel, QLCDNumber,
+                             QLineEdit, QMainWindow, QMessageBox, QProgressBar,
+                             QPushButton, QRadioButton, QSlider, QSpinBox,
+                             QStatusBar, QTableWidget, QTableWidgetItem,
+                             QVBoxLayout, QWidget)
 
 from .qsource3_mqtt_client_logic import QSource3_MQTTClientLogic
 

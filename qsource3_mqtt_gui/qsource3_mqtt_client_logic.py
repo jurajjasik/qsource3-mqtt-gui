@@ -5,16 +5,9 @@ import socket
 import paho.mqtt.client as mqtt
 from PyQt5.QtCore import QObject, pyqtSignal
 
-from .utils import (
-    check_calib_points_mz,
-    check_calib_points_resolution,
-    check_dc_offset,
-    check_dc_on,
-    check_mass_range,
-    check_mz,
-    check_rod_polarity_positive,
-    verify_calib_points,
-)
+from .utils import (check_calib_points_mz, check_calib_points_resolution,
+                    check_dc_offset, check_dc_on, check_mass_range, check_mz,
+                    check_rod_polarity_positive, verify_calib_points)
 
 logger = logging.getLogger(__name__)
 
@@ -128,19 +121,16 @@ class QSource3_MQTTClientLogic(QObject):
     def on_connect(self, client, userdata, flags, rc):
         logger.debug(f"Connected with result code {rc}")
         
-        self.client.subscribe("qsource3/#")
-
-        # self.client.subscribe(f"{self.topic_base}/response/{self.device_name}/#")
-        # logger.debug(f"Subscribed to {self.topic_base}/response/{self.device_name}/#")
+        subscription_topics = [
+            f"{self.topic_base}/response/{self.device_name}/#",
+            f"{self.topic_base}/connected/{self.device_name}",
+            f"{self.topic_base}/error/{self.device_name}/#",
+            f"{self.topic_base}/status/{self.device_name}/state"
+        ]
         
-        # self.client.subscribe(f"{self.topic_base}/connected/{self.device_name}")
-        # logger.debug(f"Subscribed to {self.topic_base}/connected/{self.device_name}/#")
-        
-        # self.client.subscribe(f"{self.topic_base}/error/{self.device_name}/#")
-        # logger.debug(f"Subscribed to {self.topic_base}/error/{self.device_name}/#")
-        
-        # self.client.subscribe(f"{self.topic_base}/status/{self.device_name}/state")
-        # logger.debug(f"Subscribed to {self.topic_base}/status/{self.device_name}/state")
+        for topic in subscription_topics:
+            self.client.subscribe(topic)
+            logger.debug(f"Subscribed to {topic}")
 
         self.signal_mqtt_status_changed.emit(
             f"connected to broker {self.config['mqtt_broker']}:{self.config['mqtt_port']}"
@@ -149,7 +139,7 @@ class QSource3_MQTTClientLogic(QObject):
     def on_message(self, client, userdata, message):
         # logger.debug(f"Received message {message}")
         topic = message.topic
-        # logger.debug(f"Received message on topic {topic}")
+        logger.debug(f"Received message on topic {topic}")
         
         try:
             payload = json.loads(message.payload.decode())
