@@ -76,6 +76,8 @@ class QSource3_MQTT_GUI(QMainWindow):
     def __init__(self, config):
         super().__init__()
 
+        self.config = config
+
         self.client_logic = QSource3_MQTTClientLogic(config)
 
         self.setWindowTitle("QSource3 MQTT GUI")
@@ -102,9 +104,8 @@ class QSource3_MQTT_GUI(QMainWindow):
         # Create widgets
         self.lbl_range = QLabel("Mass Range:")
         self.list_range = QComboBox()
-        self.list_range.addItem("Low")
-        self.list_range.addItem("Mid")
-        self.list_range.addItem("High")
+        for range in self.config["mass_ranges"]:
+            self.list_range.addItem(range)
 
         self.lbl_max_mz = QLabel("Max m/z:")
         self.lbl_max_mz_value = QLabel("xxx.x")
