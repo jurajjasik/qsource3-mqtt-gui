@@ -168,9 +168,9 @@ class QSource3_MQTTClientLogic(QObject):
             self.handle_dc_on(payload)
         elif topic.endswith("rod_polarity_positive"):
             self.handle_rod_polarity_positive(payload)
-        elif topic.endswith("calib_points_mz"):
+        elif topic.endswith("calib_pnts_rf"):
             self.handle_calib_points_mz(payload)
-        elif topic.endswith("calib_points_resolution"):
+        elif topic.endswith("calib_pnts_dc"):
             self.handle_calib_points_resolution(payload)
         elif topic.endswith("max_mz"):
             self.handle_max_mz(payload)
