@@ -12,7 +12,7 @@ from qsource3_mqtt_gui.qsource3_mqtt_gui import QSource3_MQTT_GUI
 
 # Configure logging
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format="%(asctime)s - %(name)s:%(lineno)d - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
