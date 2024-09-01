@@ -1,6 +1,6 @@
 topic_base: "qsource3"
 device_name: "QSource3"
-mqtt_broker: "localhost"
+mqtt_broker: "rpi-quad"
 mqtt_port: 1883
 mqtt_connection_timeout: 60
 

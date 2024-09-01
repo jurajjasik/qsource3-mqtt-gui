@@ -116,11 +116,11 @@ class QSource3_MQTT_GUI(QMainWindow):
         self.spin_mz.setSingleStep(0.1)
         self.spin_mz.setValue(0)
 
-        self.lbl_dc_offset = QLabel("DC Offset:")
-        self.spin_dc_offset = QDoubleSpinBox()
-        self.spin_dc_offset.setRange(-100, 100)
-        self.spin_dc_offset.setSingleStep(0.1)
-        self.spin_dc_offset.setValue(0)
+        self.lbl_dc_offst = QLabel("DC Offset:")
+        self.spin_dc_offst = QDoubleSpinBox()
+        self.spin_dc_offst.setRange(-100, 100)
+        self.spin_dc_offst.setSingleStep(0.1)
+        self.spin_dc_offst.setValue(0)
 
         self.lbl_dc_on = QLabel("DC On:")
         self.check_dc_on = QCheckBox()
@@ -171,8 +171,8 @@ class QSource3_MQTT_GUI(QMainWindow):
         self.grid.addWidget(self.spin_mz, 0, 7)
 
         # 2nd row
-        self.grid.addWidget(self.lbl_dc_offset, 1, 0, Qt.AlignRight)
-        self.grid.addWidget(self.spin_dc_offset, 1, 1)
+        self.grid.addWidget(self.lbl_dc_offst, 1, 0, Qt.AlignRight)
+        self.grid.addWidget(self.spin_dc_offst, 1, 1)
 
         self.grid.addWidget(VLine(), 1, 2)
 
@@ -238,7 +238,7 @@ class QSource3_MQTT_GUI(QMainWindow):
         # attach signals of widgets to slots
         self.list_range.currentIndexChanged.connect(self.on_range_changed)
         self.spin_mz.valueChanged.connect(self.on_mz_changed)
-        self.spin_dc_offset.valueChanged.connect(self.on_dc_offset_changed)
+        self.spin_dc_offst.valueChanged.connect(self.on_dc_offst_changed)
         self.check_dc_on.stateChanged.connect(self.on_dc_on_changed)
         self.check_rod_polarity_positive.stateChanged.connect(
             self.on_rod_polarity_positive_changed
@@ -282,8 +282,8 @@ class QSource3_MQTT_GUI(QMainWindow):
             self.handle_signal_mass_range_changed
         )
         self.client_logic.signal_mz_changed.connect(self.handle_signal_mz_changed)
-        self.client_logic.signal_dc_offset_changed.connect(
-            self.handle_signal_dc_offset_changed
+        self.client_logic.signal_dc_offst_changed.connect(
+            self.handle_signal_dc_offst_changed
         )
         self.client_logic.signal_dc_on_changed.connect(self.handle_signal_dc_on_changed)
         self.client_logic.signal_rod_polarity_positive_changed.connect(
@@ -345,8 +345,8 @@ class QSource3_MQTT_GUI(QMainWindow):
     def on_mz_changed(self, value):
         self.client_logic.publish_mz(value)
 
-    def on_dc_offset_changed(self, value):
-        self.client_logic.publish_dc_offset(value)
+    def on_dc_offst_changed(self, value):
+        self.client_logic.publish_dc_offst(value)
 
     def on_dc_on_changed(self, state):
         self.client_logic.publish_dc_on(self.check_dc_on.isChecked())
@@ -386,10 +386,10 @@ class QSource3_MQTT_GUI(QMainWindow):
         self.spin_mz.setValue(mz)
         self.spin_mz.valueChanged.connect(self.on_mz_changed)
 
-    def handle_signal_dc_offset_changed(self, dc_offset: float):
-        self.spin_dc_offset.valueChanged.disconnect(self.on_dc_offset_changed)
-        self.spin_dc_offset.setValue(dc_offset)
-        self.spin_dc_offset.valueChanged.connect(self.on_dc_offset_changed)
+    def handle_signal_dc_offst_changed(self, dc_offst: float):
+        self.spin_dc_offst.valueChanged.disconnect(self.on_dc_offst_changed)
+        self.spin_dc_offst.setValue(dc_offst)
+        self.spin_dc_offst.valueChanged.connect(self.on_dc_offst_changed)
 
     def handle_signal_dc_on_changed(self, dc_on: bool):
         self.check_dc_on.stateChanged.disconnect(self.on_dc_on_changed)

@@ -6,7 +6,7 @@ import paho.mqtt.client as mqtt
 from PyQt5.QtCore import QObject, pyqtSignal
 
 from .utils import (check_calib_points_mz, check_calib_points_resolution,
-                    check_dc_offset, check_dc_on, check_mass_range, check_mz,
+                    check_dc_offst, check_dc_on, check_mass_range, check_mz,
                     check_rod_polarity_positive, verify_calib_points)
 
 logger = logging.getLogger(__name__)
@@ -45,7 +45,7 @@ class QSource3_MQTTClientLogic(QObject):
 
     signal_mass_range_changed = pyqtSignal(int)
     signal_mz_changed = pyqtSignal(float)
-    signal_dc_offset_changed = pyqtSignal(float)
+    signal_dc_offst_changed = pyqtSignal(float)
     signal_dc_on_changed = pyqtSignal(bool)
     signal_rod_polarity_positive_changed = pyqtSignal(bool)
     signal_calib_points_mz_changed = pyqtSignal(list)
@@ -59,7 +59,7 @@ class QSource3_MQTTClientLogic(QObject):
         self.settings = {
             "mass_range": 0,
             "mz": 0,
-            "dc_offset": 0,
+            "dc_offst": 0,
             "dc_on": True,
             "rod_polarity_positive": True,
             "calib_points_mz": [[0, 0]],
@@ -93,7 +93,7 @@ class QSource3_MQTTClientLogic(QObject):
             # Verify the settings if they are valid
             check_mass_range(settings["mass_range"])
             check_mz(settings["mz"])
-            check_dc_offset(settings["dc_offset"])
+            check_dc_offst(settings["dc_offst"])
             check_dc_on(settings["dc_on"])
             check_rod_polarity_positive(settings["rod_polarity_positive"])
             check_calib_points_mz(settings["calib_points_mz"])
@@ -103,7 +103,7 @@ class QSource3_MQTTClientLogic(QObject):
 
             self.signal_mass_range_changed.emit(settings["mass_range"])
             self.signal_mz_changed.emit(settings["mz"])
-            self.signal_dc_offset_changed.emit(settings["dc_offset"])
+            self.signal_dc_offst_changed.emit(settings["dc_offst"])
             self.signal_dc_on_changed.emit(settings["dc_on"])
             self.signal_rod_polarity_positive_changed.emit(
                 settings["rod_polarity_positive"]
@@ -159,8 +159,8 @@ class QSource3_MQTTClientLogic(QObject):
             self.handle_range(payload)
         elif topic.endswith("mz"):
             self.handle_mz(payload)
-        elif topic.endswith("dc_offset"):
-            self.handle_dc_offset(payload)
+        elif topic.endswith("dc_offst"):
+            self.handle_dc_offst(payload)
         elif topic.endswith("dc_on"):
             self.handle_dc_on(payload)
         elif topic.endswith("rod_polarity_positive"):
@@ -209,6 +209,9 @@ class QSource3_MQTTClientLogic(QObject):
         if "mz" in payload:
             self.signal_mz_changed.emit(payload["mz"])
             logger.debug(f"m/z: {payload['mz']}")
+        if "dc_offst" in payload:
+            self.signal_dc_offst_changed.emit(payload["dc_offst"])
+            logger.debug(f"DC offset: {payload['dc_offst']}")
         if "is_dc_on" in payload:
             self.signal_dc_on_changed.emit(payload["is_dc_on"])
             logger.debug(f"DC power on: {payload['is_dc_on']}")
@@ -240,11 +243,11 @@ class QSource3_MQTTClientLogic(QObject):
             logger.debug(e)
 
     @log_func
-    def handle_dc_offset(self, payload):
+    def handle_dc_offst(self, payload):
         try:
-            check_dc_offset(payload["value"])
-            self.settings["dc_offset"] = payload["value"]
-            self.signal_dc_offset_changed.emit(payload["value"])
+            check_dc_offst(payload["value"])
+            self.settings["dc_offst"] = payload["value"]
+            self.signal_dc_offst_changed.emit(payload["value"])
         except ValueError as e:
             logger.debug(e)
 
@@ -330,22 +333,22 @@ class QSource3_MQTTClientLogic(QObject):
 
     @client_connected
     @log_func
-    def publish_dc_offset(self, dc_offset: float):
+    def publish_dc_offst(self, dc_offst: float):
         """
         Publishes the DC offset value to the MQTT broker.
 
         Args:
-            dc_offset (float): The DC offset value to be published.
+            dc_offst (float): The DC offset value to be published.
 
         Raises:
             ValueError: If the provided DC offset value is invalid.
 
         """
-        check_dc_offset(dc_offset)
-        self.settings["dc_offset"] = dc_offset
+        check_dc_offst(dc_offst)
+        self.settings["dc_offst"] = dc_offst
         self.client.publish(
             f"{self.topic_base}/cmnd/{self.device_name}/dc_offst",
-            json.dumps({"value": dc_offset}),
+            json.dumps({"value": dc_offst}),
         )
 
     @client_connected
