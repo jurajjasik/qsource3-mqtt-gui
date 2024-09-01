@@ -6,14 +6,35 @@ import time
 from engineering_notation import EngNumber
 from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import (QAbstractItemView, QButtonGroup, QCheckBox,
-                             QComboBox, QDoubleSpinBox, QFileDialog,
-                             QFormLayout, QFrame, QGridLayout, QGroupBox,
-                             QHBoxLayout, QHeaderView, QLabel, QLCDNumber,
-                             QLineEdit, QMainWindow, QMessageBox, QProgressBar,
-                             QPushButton, QRadioButton, QSlider, QSpinBox,
-                             QStatusBar, QTableWidget, QTableWidgetItem,
-                             QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (
+    QAbstractItemView,
+    QButtonGroup,
+    QCheckBox,
+    QComboBox,
+    QDoubleSpinBox,
+    QFileDialog,
+    QFormLayout,
+    QFrame,
+    QGridLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QHeaderView,
+    QLabel,
+    QLCDNumber,
+    QLineEdit,
+    QMainWindow,
+    QMessageBox,
+    QProgressBar,
+    QPushButton,
+    QRadioButton,
+    QSlider,
+    QSpinBox,
+    QStatusBar,
+    QTableWidget,
+    QTableWidgetItem,
+    QVBoxLayout,
+    QWidget,
+)
 
 from .qsource3_mqtt_client_logic import QSource3_MQTTClientLogic
 
@@ -368,7 +389,7 @@ class QSource3_MQTT_GUI(QMainWindow):
     def on_calib_points_resolution_changed(self, text):
         try:
             calib_points = json.loads(text)
-            self.client_logic.set_calib_points_resolution(calib_points)
+            self.client_logic.publish_calib_points_resolution(calib_points)
             set_color(self.txt_calib_points_resolution_value, COLOR_VALID)
         except (json.JSONDecodeError, TypeError) as e:
             logger.debug(e)

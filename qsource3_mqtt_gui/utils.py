@@ -30,9 +30,9 @@ def check_mz(value):
         raise ValueError(f"Invalid mz value {value}. Must be a non-negative number.")
 
 
-def check_dc_offset(value):
+def check_dc_offst(value):
     if not isinstance(value, (int, float)):
-        raise ValueError(f"Invalid dc_offset value {value}. Must be a number.")
+        raise ValueError(f"Invalid dc_offst value {value}. Must be a number.")
 
 
 def check_dc_on(value):

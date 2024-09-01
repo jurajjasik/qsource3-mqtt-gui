@@ -5,9 +5,16 @@ import socket
 import paho.mqtt.client as mqtt
 from PyQt5.QtCore import QObject, pyqtSignal
 
-from .utils import (check_calib_points_mz, check_calib_points_resolution,
-                    check_dc_offst, check_dc_on, check_mass_range, check_mz,
-                    check_rod_polarity_positive, verify_calib_points)
+from .utils import (
+    check_calib_points_mz,
+    check_calib_points_resolution,
+    check_dc_offst,
+    check_dc_on,
+    check_mass_range,
+    check_mz,
+    check_rod_polarity_positive,
+    verify_calib_points,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -101,17 +108,13 @@ class QSource3_MQTTClientLogic(QObject):
 
             self.settings = settings
 
-            self.signal_mass_range_changed.emit(settings["mass_range"])
-            self.signal_mz_changed.emit(settings["mz"])
-            self.signal_dc_offst_changed.emit(settings["dc_offst"])
-            self.signal_dc_on_changed.emit(settings["dc_on"])
-            self.signal_rod_polarity_positive_changed.emit(
-                settings["rod_polarity_positive"]
-            )
-            self.signal_calib_points_mz_changed.emit(settings["calib_points_mz"])
-            self.signal_calib_points_resolution_changed.emit(
-                settings["calib_points_resolution"]
-            )
+            self.publish_mass_range(settings["mass_range"])
+            self.publish_mz(settings["mz"])
+            self.publish_dc_offst(settings["dc_offst"])
+            self.publish_dc_on(settings["dc_on"])
+            self.publish_rod_polarity_positive(settings["rod_polarity_positive"])
+            self.publish_calib_points_mz(settings["calib_points_mz"])
+            self.publish_calib_points_resolution(settings["calib_points_resolution"])
 
     def save_settings(self, json_file_name):
         # Save the settings to a JSON file
@@ -120,14 +123,14 @@ class QSource3_MQTTClientLogic(QObject):
 
     def on_connect(self, client, userdata, flags, rc):
         logger.debug(f"Connected with result code {rc}")
-        
+
         subscription_topics = [
             f"{self.topic_base}/response/{self.device_name}/#",
             f"{self.topic_base}/connected/{self.device_name}",
             f"{self.topic_base}/error/{self.device_name}/#",
-            f"{self.topic_base}/status/{self.device_name}/state"
+            f"{self.topic_base}/status/{self.device_name}/state",
         ]
-        
+
         for topic in subscription_topics:
             self.client.subscribe(topic)
             logger.debug(f"Subscribed to {topic}")
@@ -140,7 +143,7 @@ class QSource3_MQTTClientLogic(QObject):
         # logger.debug(f"Received message {message}")
         topic = message.topic
         logger.debug(f"Received message on topic {topic}")
-        
+
         try:
             payload = json.loads(message.payload.decode())
         except json.JSONDecodeError as e:
@@ -176,6 +179,11 @@ class QSource3_MQTTClientLogic(QObject):
     def handle_device_connected(self, message):
         logger.info("Device connected")
         self.signal_device_status_changed.emit("connected")
+
+        self.request_device_state()
+        self.request_dc_offst()
+        self.request_calib_points_mz()
+        self.request_calib_points_resolution()
 
     def handle_device_error(self, message):
         logger.warning(f"Device error: {message.payload}")
@@ -219,7 +227,9 @@ class QSource3_MQTTClientLogic(QObject):
             self.signal_rod_polarity_positive_changed.emit(
                 payload["is_rod_polarity_positive"]
             )
-            logger.debug(f"Rod polarity positive: {payload['is_rod_polarity_positive']}")
+            logger.debug(
+                f"Rod polarity positive: {payload['is_rod_polarity_positive']}"
+            )
         if "max_mz" in payload:
             self.signal_max_mz_changed.emit(payload["max_mz"])
             logger.debug(f"Max m/z: {payload['max_mz']}")
@@ -415,7 +425,7 @@ class QSource3_MQTTClientLogic(QObject):
 
     @client_connected
     @log_func
-    def set_calib_points_resolution(self, calib_points_resolution):
+    def publish_calib_points_resolution(self, calib_points_resolution):
         """
         Publish the calibration points for the resolution.
 
@@ -433,4 +443,36 @@ class QSource3_MQTTClientLogic(QObject):
         self.client.publish(
             f"{self.topic_base}/cmnd/{self.device_name}/calib_pnts_dc",
             json.dumps({"value": calib_points_resolution}),
+        )
+
+    @client_connected
+    @log_func
+    def request_device_state(self):
+        self.client.publish(
+            f"{self.topic_base}/cmnd/{self.device_name}/state",
+            json.dumps({}),
+        )
+
+    @client_connected
+    @log_func
+    def request_dc_offst(self):
+        self.client.publish(
+            f"{self.topic_base}/cmnd/{self.device_name}/dc_offst",
+            json.dumps({}),
+        )
+
+    @client_connected
+    @log_func
+    def request_calib_points_mz(self):
+        self.client.publish(
+            f"{self.topic_base}/cmnd/{self.device_name}/calib_pnts_rf",
+            json.dumps({}),
+        )
+
+    @client_connected
+    @log_func
+    def request_calib_points_resolution(self):
+        self.client.publish(
+            f"{self.topic_base}/cmnd/{self.device_name}/calib_pnts_dc",
+            json.dumps({}),
         )
