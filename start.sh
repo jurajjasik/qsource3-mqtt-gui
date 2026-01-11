@@ -44,4 +44,4 @@ echo "======================================"
 echo
 
 # Run the application
-python qsource3_mqtt_gui_main.py
+python qsource3_mqtt_gui_main.py /etc/lqit/qsource3-mqtt-gui-config.yaml
