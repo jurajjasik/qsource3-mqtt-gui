@@ -1,0 +1,4 @@
+engineering_notation>=0.10.0
+paho_mqtt>=2.1.0
+PyQt5>=5.15.11
+PyYAML>=6.0.3
