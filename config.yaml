@@ -1,7 +1,7 @@
-topic_base: "qsource3"
+topic_base: "lqt/qsource3"
 device_name: "QSource3"
-mqtt_broker: "rpi-quad"
+mqtt_broker: "147.231.29.57"
 mqtt_port: 1883
 mqtt_connection_timeout: 60
 
-mass_ranges: ["Low", "High"]
+mass_ranges: [ "Low", "Mid", "High" ]
